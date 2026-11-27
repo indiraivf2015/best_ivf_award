@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Times Network Award 2026 Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Baloo+2:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  /* Colours lifted from the Times Network award artwork: warm cream paper,
+     the photo ring's antique gold and the headline's rust red. --coral keeps
+     its old name but is the gold accent; --accent is the rust, dark enough for
+     white button text. */
+  :root{
+    --bg:#FBF5EE; --surface:#FFFFFF; --blush:#F8EDE0; --blush-2:#F2E2CE;
+    --border:#EFE3D4; --border-strong:#E2C9A2;
+    --text:#2A1A1C; --text-2:#5F5558; --text-3:#8F8589;
+    --coral:#B88A4E; --accent:#8E2B1E; --accent-hover:#712217; --accent-soft:#F9ECE6;
+    --ok:#15803D; --ok-soft:#F0FDF4; --warn:#B45309; --warn-bg:#FFFBEB; --warn-br:#FDE68A;
+    --r-card:14px; --r-input:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Figtree',system-ui,Arial,sans-serif;
+    background:
+      radial-gradient(900px 420px at 100% 0%, rgba(232,205,160,.32), transparent 70%),
+      radial-gradient(700px 380px at 0% 100%, rgba(236,214,190,.35), transparent 70%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text); font-size:14px; line-height:1.5; min-height:100vh;
+  }
+  button,select,input{font-family:inherit; font-size:inherit;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  header{
+    background:linear-gradient(120deg,#FFFFFF 0%,#FBF3EA 55%,#F3E3CB 100%);
+    border-bottom:1px solid var(--border);
+  }
+  .hd-inner{max-width:1280px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; gap:14px;}
+  .hd-mark{
+    width:48px; height:48px; flex:none; border-radius:50%;
+    background:#fff; border:2px solid var(--coral);
+    box-shadow:0 0 0 5px rgba(184,138,78,.18);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hd-mark svg{width:26px; height:26px; display:block;}
+  .hd-title{min-width:0;}
+  .hd-title strong{display:block; font-size:21px; font-weight:800; letter-spacing:-.01em; line-height:1.15;}
+  .hd-title strong em{font-style:normal; color:var(--accent);}
+  .hd-title span{display:block; font-size:13px; color:var(--text-2); margin-top:2px;}
+  .hd-date{
+    margin-left:auto; flex:none;
+    font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--accent); background:#fff; border:1px solid var(--border-strong);
+    border-radius:999px; padding:6px 14px;
+  }
+  .hd-bar{height:4px; background:linear-gradient(90deg,#8E2B1E 0%,#B88A4E 35%,#EBD3A8 55%,#B88A4E 75%,#8E2B1E 100%);}
+
+  .wrap{max-width:1280px; margin:0 auto; padding:0 24px;}
+  .banner{margin-top:16px;}
+  .banner-in{background:var(--warn-bg); border:1px solid var(--warn-br); color:#78350F; border-radius:var(--r-card); padding:10px 14px; font-size:13px; display:flex; gap:10px;}
+  .banner.hide,.hide{display:none !important;}
+  .must{
+    margin-top:18px;
+    background:linear-gradient(120deg,#FFFFFF 0%,var(--blush) 100%);
+    border:1px solid var(--border-strong);
+    border-left:4px solid var(--coral);
+    border-radius:var(--r-card);
+    padding:14px 18px;
+  }
+  .must-title{font-weight:700; font-size:15px; line-height:1.4; margin-bottom:8px; color:var(--text);}
+  .must-title em{font-style:normal; color:var(--accent);}
+  .must-list{
+    list-style:none;
+    counter-reset:must;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:14px;
+    line-height:1.55;
+    color:var(--text-2);
+  }
+  .must-list li{counter-increment:must;}
+  .must-list strong{font-weight:700; color:var(--text);}
+  @media (min-width:641px){
+    .must{padding:16px 22px;}
+    .must-title{font-size:16px;}
+    .must-list{font-size:15px; gap:6px;}
+  }
+
+  .steps{margin-top:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:stretch;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-card); padding:12px 14px; display:flex; gap:12px; align-items:center; min-height:64px; box-shadow:0 6px 18px rgba(142,43,30,.05);}
+  .card.drop{flex:1 1 240px; cursor:pointer; transition:border-color 150ms ease, background 150ms ease;}
+  .card.drop:hover{border-color:var(--border-strong);}
+  .card.drop.over{border-color:var(--accent); background:var(--accent-soft);}
+  .card.drop:focus-within{border-color:var(--accent);}
+  #photoCard{flex:1 1 420px; border-color:var(--coral);}
+  .card.done .num{background:var(--ok-soft); border-color:var(--ok); color:var(--ok);}
+  .num{font-size:12px; font-weight:700; color:var(--accent); background:var(--accent-soft); border:1px solid var(--border-strong); border-radius:999px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; flex:none;}
+  .c-name{font-weight:600; font-size:13px;}
+  .c-meta{font-size:12px; color:var(--text-2);}
+  .card input[type=file]{display:none;}
+  #photoCard{flex-wrap:wrap;}
+  .photo-pick{cursor:pointer; min-width:0; flex:1 1 160px;}
+  .photo-pick .c-name{font-weight:700;}
+  .card.actions{flex:0 0 auto; gap:8px; flex-wrap:wrap; margin-left:auto;}
+  .card.actions .btn{white-space:nowrap;}
+  .card.fields{
+    flex:1 1 100%;
+    align-items:flex-end;
+    gap:12px;
+    min-height:72px;
+    width:100%;
+  }
+  .fields-stack{
+    display:flex;
+    flex:1 1 auto;
+    gap:12px 16px;
+    min-width:0;
+  }
+  .fields-stack .fld{flex:1 1 0; min-width:0;}
+  .fields-stack .fld input{width:100%; min-width:0;}
+  .mobile-dl{margin-top:12px;}
+  .mobile-dl:empty{display:none;}
+  .mobile-dl .card.actions{margin-left:0; width:100%; justify-content:stretch;}
+  .mobile-dl .card.actions .btn{flex:1;}
+
+  main{margin:16px auto 12px;}
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-card); box-shadow:0 10px 30px rgba(142,43,30,.06);}
+
+
+  .fld{display:flex; flex-direction:column; gap:2px;}
+  .fld label{font-size:11px; color:var(--text-2);}
+  .fld label[for="nameInput"],
+  .fld label[for="desgInput"],
+  .fld label[for="locInput"]{font-weight:700; color:var(--text); font-size:12px;}
+  .fld input{
+    border:1px solid var(--border-strong); border-radius:var(--r-input);
+    padding:8px 10px; min-width:170px; background:#fff; color:var(--text);
+  }
+  .fld input:focus{outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent;}
+  .ed-body{padding:16px; display:flex; gap:20px; flex-wrap:wrap; justify-content:center;}
+  #stage{border:1px solid var(--border); border-radius:var(--r-card); width:100%; max-width:420px; height:auto; touch-action:none; cursor:grab; background:#fff; box-shadow:0 12px 32px rgba(142,43,30,.10);}
+  #stage.dragging{cursor:grabbing;}
+  .side{width:240px; display:flex; flex-direction:column; gap:14px;}
+  .ctl label{font-size:12px; color:var(--text-2); display:flex; justify-content:space-between;}
+  .ctl input[type=range]{width:100%; accent-color:var(--accent);}
+  .hint{font-size:12px; color:var(--text-3); line-height:1.55;}
+
+  .btn{border:1px solid var(--border-strong); background:var(--surface); color:var(--text); border-radius:var(--r-input); padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; transition:background 150ms ease,border-color 150ms ease;}
+  .btn:hover{border-color:var(--coral); background:#FFF6F2;}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn.primary:hover{background:var(--accent-hover); border-color:var(--accent-hover);}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .btn.small{padding:5px 10px; font-size:12px;}
+  /* Download PNG is the only action, so it carries the weight. */
+  #dlBtn:not(:disabled){background:var(--accent); border-color:var(--accent); color:#fff;}
+  #dlBtn:not(:disabled):hover{background:var(--accent-hover); border-color:var(--accent-hover);}
+
+  footer{padding:0 0 28px; color:var(--text-3); font-size:12px; display:flex; gap:12px; flex-wrap:wrap;}
+
+  .ovl{position:fixed; inset:0; background:rgba(19,28,43,.72); display:none; align-items:center; justify-content:center; padding:24px; z-index:50;}
+  .ovl.show{display:flex;}
+  .ovl-card{background:var(--surface); border-radius:var(--r-card); max-width:640px; width:100%; max-height:90vh; overflow:auto; padding:18px;}
+  .ovl-card h3{font-size:14px; font-weight:600; margin-bottom:4px;}
+  .ovl-card p{font-size:13px; color:var(--text-2); margin-bottom:12px;}
+  .ovl-card img{width:100%; border:1px solid var(--border); border-radius:var(--r-input); display:block;}
+  .ovl-foot{display:flex; gap:8px; justify-content:flex-end; margin-top:12px;}
+
+  .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--text); color:#fff; padding:8px 16px; border-radius:var(--r-input); font-size:13px; opacity:0; pointer-events:none; transition:opacity 150ms ease; max-width:92vw; text-align:center; z-index:60;}
+  .toast.show{opacity:1;}
+  @media (max-width:640px){
+    .wrap{padding:0 16px;}
+    .hd-inner{padding:12px 16px; gap:10px;}
+    .hd-mark{width:40px; height:40px; box-shadow:0 0 0 4px rgba(184,138,78,.18);}
+    .hd-mark svg{width:22px; height:22px;}
+    .hd-title strong{font-size:17px;}
+    .hd-title span{font-size:12px;}
+    .hd-date{display:none;}
+    .steps{flex-direction:column;}
+    #photoCard,.card.actions,.card.fields{width:100%; margin-left:0;}
+    #photoCard{
+      display:grid;
+      grid-template-columns:24px 1fr;
+      align-items:start;
+      gap:10px 12px;
+      padding:16px;
+      flex:none;
+      height:auto;
+      min-height:0;
+      flex-wrap:nowrap;
+    }
+    #photoCard .num{grid-column:1; grid-row:1; margin-top:2px;}
+    #photoCard .photo-pick{grid-column:2; grid-row:1; flex:none; width:auto;}
+    #photoCard input[type=file]{display:none;}
+    .card.fields{align-items:flex-start;}
+    .card.fields .num{margin-top:22px;}
+    .fields-stack{
+      flex-direction:column;
+      width:100%;
+      gap:12px;
+    }
+    .fields-stack .fld{flex:none; width:100%;}
+    .fields-stack .fld input{width:100%; min-width:0;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-inner">
+    <div class="hd-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#9C7239" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 3.5h10v5a5 5 0 0 1-10 0z" fill="#F1DDB4"/>
+        <path d="M7 5.5H4.5a3 3 0 0 0 3 3.6M17 5.5h2.5a3 3 0 0 1-3 3.6"/>
+        <path d="M12 13.5v3.5"/>
+        <path d="M8.5 20.5h7l-.8-3.5H9.3z" fill="#F1DDB4"/>
+      </svg>
+    </div>
+    <div class="hd-title">
+      <strong>Ranked <em>#1</em> · Times Network Health Awards</strong>
+      <span>Creative Studio · Indira IVF</span>
+    </div>
+    <div class="hd-date">India Health Awards 2026</div>
+  </div>
+  <div class="hd-bar"></div>
+</header>
+
+<div class="wrap">
+  <div class="banner hide" id="banner"><div class="banner-in"><span>i</span>
+    <span><strong>Preview mode.</strong> This page is inside a preview frame, which blocks file saving. Open it directly in Chrome for one-click PNG downloads.</span>
+  </div></div>
+
+  <aside class="must" aria-label="Mandatory steps">
+    <p class="must-title">Create your <em>#1 IVF chain</em> celebration creative in three steps</p>
+    <ol class="must-list">
+      <li><strong>Step 1:</strong> Upload your photo. It fills the round frame.</li>
+      <li><strong>Step 2:</strong> Write your <strong>Name</strong>, <strong>Designation</strong> and <strong>Location</strong>.</li>
+      <li><strong>Step 3:</strong> Download the image.</li>
+    </ol>
+  </aside>
+
+  <div class="steps">
+    <div class="card drop" id="photoCard">
+      <span class="num">1</span>
+      <label class="photo-pick" for="photoInput">
+        <span class="c-name" id="photoTitle">Upload your photo</span><br>
+        <span class="c-meta" id="photoMeta">JPG · PNG · WEBP · PDF</span>
+      </label>
+      <input type="file" id="photoInput" accept=".jpg,.jpeg,.png,.webp,.pdf,image/*,application/pdf">
+    </div>
+
+    <div class="card actions" id="dlCard">
+      <span class="num">3</span>
+      <button class="btn" id="dlBtn" type="button" disabled>Download PNG</button>
+    </div>
+
+    <div class="card fields" id="fieldsCard">
+      <span class="num">2</span>
+      <div class="fields-stack">
+        <div class="fld"><label for="nameInput">Name</label><input id="nameInput" placeholder="e.g. Ananya Sharma" autocomplete="off"></div>
+        <div class="fld"><label for="desgInput">Designation</label><input id="desgInput" placeholder="e.g. Centre Manager" autocomplete="off"></div>
+        <div class="fld" id="locFld"><label for="locInput">Location</label><input id="locInput" placeholder="e.g. Udaipur" autocomplete="off"></div>
+      </div>
+    </div>
+  </div>
+
+  <main id="main">
+    <section class="panel">
+      <div class="ed-body">
+        <canvas id="stage" width="420" height="460" aria-label="Creative preview"></canvas>
+        <div class="side">
+          <div class="ctl">
+            <label for="zoomCtl">Photo zoom <span id="zoomVal">100%</span></label>
+            <input type="range" id="zoomCtl" min="100" max="300" value="100" disabled>
+          </div>
+          <button class="btn small" id="resetBtn" type="button" disabled>Reset position</button>
+          <p class="hint">Drag the photo inside the circle to reposition it. Scroll over the preview to zoom.</p>
+          <p class="hint" id="statusHint"></p>
+          <div class="mobile-dl" id="dlMobileSlot"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span id="verLabel"></span>
+    <span>Your photo and details stay on this device — nothing is uploaded to any server.</span>
+  </footer>
+</div>
+
+<div class="ovl" id="ovl" role="dialog" aria-modal="true" aria-labelledby="ovlTitle">
+  <div class="ovl-card">
+    <h3 id="ovlTitle">Your creative</h3>
+    <p>Right-click the image (press and hold on touch) and choose <strong>Save image as…</strong></p>
+    <img id="ovlImg" alt="Generated creative, ready to save">
+    <div class="ovl-foot">
+      <button class="btn" id="ovlOpen" type="button">Open in new tab</button>
+      <button class="btn primary" id="ovlClose" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+const VERSION = 'v10.0 · Times Network Award 2026';
+
+// The template comes out of tools/prepare_times_award.py: the PNG has a
+// transparent, perfectly round hole exactly where the artwork's cream disc
+// was, inside the pale gap and thin brown ring. Coordinates are template
+// pixels (2250x2250, half the 4500 source). ellipse is the hole the script
+// printed; empty is the original cream disc, shown until a photo is added;
+// card is the text block with the placeholder lines painted out, pasted at
+// cardAt once anything is typed. Font, sizes and baselines match the printed
+// "Name / Designation / Location" lines (Baloo 2, 32px). Single layout.
+const NAMEPLATE_FONT = "'Baloo 2', Arial, sans-serif";
+const NAME_INK = '#111111';
+const BODY_INK = '#111111';
+const PRESETS = {
+  employee: {
+    label: 'Times Network Award 2026',
+    src: 'templates/times-award-employee.png',
+    empty: 'templates/times-award-employee-empty.png', emptyAt: [146, 1527],
+    card: 'templates/times-award-employee-card.png', cardAt: [215, 1912],
+    ellipse: [148.0, 1529.4, 489.8, 1871.2],
+    textX: 319, maxW: 420, glow: null,
+    name: { baseline: 1943, size: 32, weight: 500, fill: NAME_INK, font: NAMEPLATE_FONT },
+    desg: { baseline: 1982, size: 32, weight: 400, fill: BODY_INK, font: NAMEPLATE_FONT },
+    loc:  { baseline: 2023, size: 32, weight: 400, fill: BODY_INK, font: NAMEPLATE_FONT, prefix: '' }
+  }
+};
+
+// Native template pixels the photo is allowed to run past the hole. The hole
+// edge is antialiased; matching it exactly leaves a pale hairline, and the
+// template (pale gap) drawn on top hides the overrun.
+const CLIP_BLEED = 1.5;
+
+let tpl = null;
+let cardImg = null;
+let emptyImg = null;
+const geoKey = 'employee';
+// One person: this studio makes a single person's creative at a time.
+const person = { name:'', desg:'', loc:'', photo:null };
+
+const $ = id => document.getElementById(id);
+const P = () => PRESETS[geoKey];
+const EMBEDDED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+const fontsReady = () => {
+  if (!document.fonts) return Promise.resolve();
+  const want = [400, 500].map(w => document.fonts.load(w + ' 32px "Baloo 2"').catch(() => {}));
+  return Promise.all([document.fonts.ready, ...want]).catch(() => {});
+};
+
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 3400);
+}
+
+let PDF_OK = typeof pdfjsLib !== 'undefined';
+if (PDF_OK){
+  try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }
+  catch (e){ PDF_OK = false; }
+}
+
+function readDataURL(file){
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result);
+    fr.onerror = () => rej(new Error('read failed'));
+    fr.readAsDataURL(file);
+  });
+}
+function loadImage(src){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = () => rej(new Error('decode failed'));
+    img.src = src;
+  });
+}
+async function fileToImage(file){
+  try { return await loadImage(await readDataURL(file)); }
+  catch (e){ return await createImageBitmap(file); }
+}
+function downscale(img, max){
+  const k = Math.min(1, (max || 1600) / Math.max(img.width, img.height));
+  if (k === 1) return img;
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c;
+}
+async function pdfToCanvas(file){
+  if (!PDF_OK) throw new Error('PDF support unavailable');
+  const doc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  const page = await doc.getPage(1);
+  let vp = page.getViewport({ scale: 1 });
+  vp = page.getViewport({ scale: Math.min(1600 / Math.max(vp.width, vp.height), 4) });
+  const c = document.createElement('canvas');
+  c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+  await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+  return c;
+}
+async function decodePhoto(file){
+  const isPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf';
+  return isPdf ? await pdfToCanvas(file) : downscale(await fileToImage(file), 1600);
+}
+
+// Trims a flat border (e.g. white margins of a scanned PDF) so the person,
+// not the margin, fills the circle.
+function contentBox(img){
+  const w = img.width, h = img.height;
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, w, h).data;
+  const cr = data[0], cg = data[1], cb = data[2];
+  let x0 = w, y0 = h, x1 = 0, y1 = 0, n = 0;
+  for (let y = 0; y < h; y += 2){
+    for (let x = 0; x < w; x += 2){
+      const i = (y * w + x) * 4;
+      if (data[i + 3] < 24) continue;
+      if (Math.abs(data[i] - cr) + Math.abs(data[i + 1] - cg) + Math.abs(data[i + 2] - cb) < 30) continue;
+      n++;
+      if (x < x0) x0 = x;
+      if (y < y0) y0 = y;
+      if (x > x1) x1 = x;
+      if (y > y1) y1 = y;
+    }
+  }
+  if (n < 80 || (x1 - x0) < w * 0.28 || (y1 - y0) < h * 0.28) return { x: 0, y: 0, w, h };
+  // Step inward, never outward: the scan samples every 2nd pixel, and any
+  // border left in the box shows as a pale sliver on the circle's edge.
+  const insetX = Math.round((x1 - x0) * 0.01) + 2;
+  const insetY = Math.round((y1 - y0) * 0.01) + 2;
+  x0 += insetX; y0 += insetY; x1 -= insetX; y1 -= insetY;
+  return { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+}
+
+const makePhoto = src => ({ src, zoom: 1, dx: 0, dy: 0, box: contentBox(src) });
+
+// Keeps the photo covering the whole circle: dragging or zooming can never
+// pull an edge of the photo inside the hole and leave a transparent gap.
+function clampPhoto(){
+  const ph = person.photo;
+  if (!ph) return;
+  const [x0, y0, x1, y1] = P().ellipse;
+  const pw = x1 - x0, phh = y1 - y0;
+  const cover = Math.max(pw / ph.box.w, phh / ph.box.h) * ph.zoom;
+  // Cover the soft clip edge too (hole + CLIP_BLEED + 1px), not just the hole.
+  const edge = 2 * (CLIP_BLEED + 1);
+  const mx = Math.max(0, (ph.box.w * cover - pw - edge) / 2);
+  const my = Math.max(0, (ph.box.h * cover - phh - edge) / 2);
+  ph.dx = Math.min(mx, Math.max(-mx, ph.dx));
+  ph.dy = Math.min(my, Math.max(-my, ph.dy));
+}
+
+async function loadTemplate(){
+  const p = P();
+  [tpl, cardImg, emptyImg] = await Promise.all([loadImage(p.src), loadImage(p.card), loadImage(p.empty)]);
+  refresh();
+}
+
+const photoCard = $('photoCard'), photoInput = $('photoInput');
+photoCard.addEventListener('dragover', e => { e.preventDefault(); photoCard.classList.add('over'); });
+photoCard.addEventListener('dragleave', () => photoCard.classList.remove('over'));
+photoCard.addEventListener('drop', e => {
+  e.preventDefault(); photoCard.classList.remove('over');
+  if (e.dataTransfer.files.length) readPhoto(e.dataTransfer.files[0]);
+});
+photoInput.addEventListener('change', e => { if (e.target.files.length) readPhoto(e.target.files[0]); });
+
+async function readPhoto(file){
+  $('photoMeta').textContent = 'Reading ' + file.name + '…';
+  try {
+    person.photo = makePhoto(await decodePhoto(file));
+    photoCard.classList.add('done');
+    $('photoMeta').textContent = file.name;
+  } catch (e){
+    toast('That photo could not be read. Try a JPG or PNG.');
+    $('photoMeta').textContent = person.photo ? 'Photo added' : 'JPG · PNG · WEBP · PDF';
+  }
+  photoInput.value = '';
+  refresh();
+}
+
+function fitFont(ctx, text, spec, k, maxW){
+  const fam = spec.font || 'Figtree, Arial, sans-serif';
+  let size = spec.size * k;
+  for (;;){
+    ctx.font = spec.weight + ' ' + size.toFixed(1) + 'px ' + fam;
+    if (ctx.measureText(text).width <= maxW * k || size <= 13 * k) return;
+    size -= 0.5;
+  }
+}
+
+function drawCreative(ctx, W){
+  const p = P();
+  const artW = tpl.width, artH = tpl.height;
+  const native = document.createElement('canvas');
+  native.width = artW;
+  native.height = artH;
+  const nctx = native.getContext('2d');
+  nctx.imageSmoothingEnabled = true;
+  if (nctx.imageSmoothingQuality) nctx.imageSmoothingQuality = 'high';
+
+  const [x0, y0, x1, y1] = p.ellipse;
+  const pw = x1 - x0, ph = y1 - y0;
+  const cx = x0 + pw / 2, cy = y0 + ph / 2;
+  nctx.save();
+  nctx.beginPath();
+  nctx.ellipse(cx, cy, pw / 2 + CLIP_BLEED, ph / 2 + CLIP_BLEED, 0, 0, Math.PI * 2);
+  nctx.clip();
+  if (person.photo){
+    const s = person.photo.src;
+    const box = person.photo.box || { x: 0, y: 0, w: s.width, h: s.height };
+    const cover = Math.max(pw / box.w, ph / box.h) * person.photo.zoom;
+    nctx.drawImage(
+      s, box.x, box.y, box.w, box.h,
+      cx - box.w * cover / 2 + person.photo.dx,
+      cy - box.h * cover / 2 + person.photo.dy,
+      box.w * cover, box.h * cover
+    );
+  } else {
+    nctx.drawImage(emptyImg, p.emptyAt[0], p.emptyAt[1]);
+  }
+  nctx.restore();
+
+  nctx.drawImage(tpl, 0, 0);
+
+  const name = person.name.trim();
+  const desg = person.desg.trim();
+  const loc = person.loc.trim();
+  // The printed "Name / Designation / Location" stay as a preview until
+  // something is typed; then the text block is swapped for the blank one.
+  if (name || desg || loc) nctx.drawImage(cardImg, p.cardAt[0], p.cardAt[1]);
+
+  nctx.textAlign = 'center';
+  nctx.textBaseline = 'alphabetic';
+  const tx = p.textX;
+  if (p.glow){ nctx.shadowColor = p.glow; nctx.shadowBlur = 8; }
+  if (name){ nctx.fillStyle = p.name.fill; fitFont(nctx, name, p.name, 1, p.maxW); nctx.fillText(name, tx, p.name.baseline); }
+  if (desg){ nctx.fillStyle = p.desg.fill; fitFont(nctx, desg, p.desg, 1, p.maxW); nctx.fillText(desg, tx, p.desg.baseline); }
+  if (loc){
+    const line = p.loc.prefix + loc;
+    nctx.fillStyle = p.loc.fill; fitFont(nctx, line, p.loc, 1, p.maxW);
+    nctx.fillText(line, tx, p.loc.baseline);
+  }
+  nctx.shadowColor = 'transparent'; nctx.shadowBlur = 0;
+
+  ctx.imageSmoothingEnabled = true;
+  if (ctx.imageSmoothingQuality) ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(native, 0, 0, W, artH * (W / artW));
+}
+
+const stage = $('stage'), sctx = stage.getContext('2d');
+function renderPreview(){
+  if (!tpl || !cardImg) return;
+  const w = stage.width;
+  stage.height = Math.round(w * tpl.height / tpl.width);
+  sctx.clearRect(0, 0, w, stage.height);
+  drawCreative(sctx, w);
+}
+
+let drag = null;
+stage.addEventListener('pointerdown', e => {
+  if (!person.photo) return;
+  drag = { x:e.clientX, y:e.clientY, dx:person.photo.dx, dy:person.photo.dy };
+  stage.setPointerCapture(e.pointerId); stage.classList.add('dragging');
+});
+stage.addEventListener('pointermove', e => {
+  if (!drag || !tpl) return;
+  const k = tpl.width / stage.getBoundingClientRect().width;
+  person.photo.dx = drag.dx + (e.clientX - drag.x) * k;
+  person.photo.dy = drag.dy + (e.clientY - drag.y) * k;
+  clampPhoto();
+  renderPreview();
+});
+['pointerup','pointercancel'].forEach(ev => stage.addEventListener(ev, () => { drag = null; stage.classList.remove('dragging'); }));
+stage.addEventListener('wheel', e => {
+  if (!person.photo) return;
+  e.preventDefault();
+  person.photo.zoom = Math.min(3, Math.max(1, person.photo.zoom - e.deltaY * 0.0015));
+  $('zoomCtl').value = Math.round(person.photo.zoom * 100);
+  $('zoomVal').textContent = $('zoomCtl').value + '%';
+  clampPhoto();
+  renderPreview();
+}, { passive:false });
+$('zoomCtl').oninput = () => {
+  if (!person.photo) return;
+  person.photo.zoom = $('zoomCtl').value / 100;
+  $('zoomVal').textContent = $('zoomCtl').value + '%';
+  clampPhoto();
+  renderPreview();
+};
+$('resetBtn').onclick = () => {
+  if (!person.photo) return;
+  Object.assign(person.photo, { zoom:1, dx:0, dy:0 }); refresh();
+};
+[['nameInput','name'], ['desgInput','desg'], ['locInput','loc']].forEach(([id, key]) => {
+  $(id).oninput = () => { person[key] = $(id).value; renderPreview(); updateHint(); updateButtons(); };
+});
+
+function renderFull(){
+  const c = document.createElement('canvas');
+  c.width = tpl.width; c.height = tpl.height;
+  drawCreative(c.getContext('2d'), tpl.width);
+  return c;
+}
+const fileNameFor = p => 'TimesNetworkAward2026_' + (p.name.trim() || 'Untitled').replace(/[^\w\- ]+/g, '').replace(/\s+/g, '_') + '.png';
+
+function saveBlob(blob, name){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 20000);
+}
+function showSavePanel(dataUrl, name){
+  $('ovlTitle').textContent = name;
+  $('ovlImg').src = dataUrl;
+  $('ovl').classList.add('show');
+  $('ovlClose').focus();
+  $('ovlOpen').onclick = () => {
+    const w = window.open();
+    if (w){ w.document.write('<title>' + name + '</title><img src="' + dataUrl + '" style="max-width:100%">'); w.document.close(); }
+    else toast('Pop-up blocked — use right-click → Save image as instead.');
+  };
+}
+$('ovlClose').onclick = () => $('ovl').classList.remove('show');
+$('ovl').onclick = e => { if (e.target === $('ovl')) $('ovl').classList.remove('show'); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('ovl').classList.remove('show'); });
+
+$('dlBtn').onclick = async () => {
+  if (!fieldsReady()) return;
+  await fontsReady();
+  const canvas = renderFull(), name = fileNameFor(person);
+  if (EMBEDDED){
+    showSavePanel(canvas.toDataURL('image/png'), name);
+    toast('Saved · ' + person.name.trim());
+    return;
+  }
+  canvas.toBlob(b => { saveBlob(b, name); toast('Downloaded · ' + person.name.trim()); });
+};
+
+// Photo, name, designation and location are all required.
+function fieldsReady(){
+  return !!(tpl && person.photo && person.name.trim() && person.desg.trim() && person.loc.trim());
+}
+function updateButtons(){ $('dlBtn').disabled = !fieldsReady(); }
+function updateHint(){
+  $('statusHint').textContent =
+    !person.photo ? 'Upload your photo in step 1 to place it in the circle.'
+    : !person.name.trim() ? 'Add a name to enable the download.'
+    : !person.desg.trim() ? 'Add a designation to enable the download.'
+    : !person.loc.trim() ? 'Add a location to enable the download.'
+    : 'Ready — tap Download PNG anytime.';
+}
+function refresh(){
+  const live = !!person.photo;
+  $('zoomCtl').disabled = $('resetBtn').disabled = !live;
+  if (live){ $('zoomCtl').value = Math.round(person.photo.zoom * 100); $('zoomVal').textContent = $('zoomCtl').value + '%'; }
+  updateHint();
+  updateButtons();
+  renderPreview();
+}
+
+function placeDownloadActions(){
+  const card = $('dlCard'), mobile = $('dlMobileSlot');
+  if (window.matchMedia('(max-width:640px)').matches) mobile.appendChild(card);
+  else photoCard.after(card);
+}
+window.addEventListener('resize', placeDownloadActions);
+
+(async function init(){
+  $('verLabel').textContent = 'Creative Studio ' + VERSION;
+  if (EMBEDDED) $('banner').classList.remove('hide');
+  placeDownloadActions();
+  refresh();
+  try { await loadTemplate(); }
+  catch (e){ toast('The award template failed to load — refresh the page and try again.'); }
+  fontsReady().then(renderPreview);
+})();
+</script>
+</body>
+</html>

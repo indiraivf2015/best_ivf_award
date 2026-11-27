@@ -1,0 +1,8 @@
+.vercel
+.DS_Store
+Thumbs.db
+*.log
+__pycache__/
+sample_data/
+
+*.pack
